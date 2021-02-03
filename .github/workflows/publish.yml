@@ -1,25 +1,25 @@
+name: Package addon
+
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - '*-release' # Push events to matching v*, i.e. v1.0, v20.15.10
-
-name: Create Release
+      - '*'
+    paths-ignore:
+      - '.github/**'
+      - 'ldoc.ltp'
 
 jobs:
   build:
-    name: Create Release
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags') == true || (!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]'))
+
     steps:
-      - name: Checkout code
+      - name: Checkout addon
         uses: actions/checkout@v2
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
+          fetch-depth: 100
+
+      - name: Package
+        uses: BigWigsMods/packager@master
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
