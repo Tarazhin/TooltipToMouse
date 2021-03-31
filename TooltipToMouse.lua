@@ -1,30 +1,31 @@
 local frame = CreateFrame("FRAME"); -- Need a frame to respond to events
 frame:RegisterEvent("ADDON_LOADED"); -- Fired when saved variables are loaded
 frame:RegisterEvent("PLAYER_LOGOUT"); -- Fired when about to log out
-
 frame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == "TooltipToMouse" then
         print("AddOn geladen...")
         if TtM_IsActive == nil then
             TtM_IsActive = true
         end
-        if TtM_IsActive then
-            hooksecurefunc("GameTooltip_SetDefaultAnchor", function(s,p) s:SetOwner(p,"ANCHOR_CURSOR") end)
-        else
-            hooksecurefunc("GameTooltip_SetDefaultAnchor", function(s,p) s:SetOwner(p,"BOTTOMRIGHT") end)
-        end 
+
+        hooksecurefunc("GameTooltip_SetDefaultAnchor", tooltipPos)
     end
 end)
-
 SLASH_TTM1 = "/TTM"
-SlashCmdList['TTM'] = function()
-    if TtM_IsActive then
+SlashCmdList['TTM'] = function(msg)
+    print(msg)
+    if string.find(msg, "off") then
         TtM_IsActive = false
-        hooksecurefunc("GameTooltip_SetDefaultAnchor", function(s,p) s:SetOwner(p,"BOTTOMRIGHT") end)
     end
-    if TtM_IsActive == false then
+    if string.find(msg, "on") then
         TtM_IsActive = true
-        hooksecurefunc("GameTooltip_SetDefaultAnchor", function(s,p) s:SetOwner(p,"ANCHOR_CURSOR") end)
     end
 end
 
+function tooltipPos(s, p)
+    if TtM_IsActive then
+        s:SetOwner(p, "ANCHOR_CURSOR")
+    else
+        s:SetOwner(p, "ANCHOR_NONE")
+    end
+end
